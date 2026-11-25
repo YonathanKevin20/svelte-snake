@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # Installs pnpm (the version pinned in package.json) and Node (from .nvmrc), then runs
+      # `pnpm install --frozen-lockfile`. pnpm/setup replaces pnpm/action-setup + setup-node.
+      - uses: pnpm/setup@v3
+        with:
+          require-lockfile: true
+          cache: true
+      - run: pnpm check
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e

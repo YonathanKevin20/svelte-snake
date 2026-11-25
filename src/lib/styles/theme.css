@@ -1,0 +1,54 @@
+:root {
+	/* LCD palette: dark "pixels" on a pale green-gray screen. */
+	--lcd-light: #c7f0d8;
+	--lcd-ink: #43523d;
+	--lcd-ghost: rgb(67 82 61 / 0.09);
+
+	/* Handset */
+	--page-bg: #111a24;
+	--phone-body: #2b3d52;
+	--phone-edge: #1a2635;
+	--phone-label: #a9bbcd;
+	--key-bg: #3a5068;
+	--key-text: #dbe6f0;
+
+	--font-pixel: 'Press Start 2P', ui-monospace, 'Courier New', monospace;
+	/* Two-tone focus ring: a dark inner line shows on the light LCD, the yellow outer one on
+	   the dark phone, so the indicator keeps 3:1 contrast on every surface. */
+	--focus-ring: #f2c14e;
+	--focus-inner: #111a24;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+	background: var(--page-bg);
+	color: var(--lcd-ink);
+	font-family: var(--font-pixel);
+	-webkit-text-size-adjust: 100%;
+}
+
+:focus-visible {
+	outline: 3px solid var(--focus-ring);
+	outline-offset: 2px;
+	box-shadow: 0 0 0 2px var(--focus-inner);
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
