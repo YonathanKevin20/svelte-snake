@@ -49,6 +49,21 @@ Run these with `pnpm`. If a script below does not exist yet, add it to `package.
 
 **Before considering any task done, run:** `pnpm check && pnpm lint && pnpm test && pnpm build`.
 
+### Re-recording the demo GIF
+
+`docs/demo.gif` is generated, not hand-made: Playwright plays the built game with a fake clock (so every frame is exactly 100 ms apart) and a pinned random seed, a tiny auto-player steers toward the food, and ffmpeg assembles the frames. Re-record it whenever the look of the game changes:
+
+```sh
+pnpm build && pnpm preview --port 4173   # terminal 1
+pnpm demo                                 # terminal 2 (ffmpeg must be installed)
+```
+
+Options such as the seed, the target score and the output width are environment variables, listed at the top of `scripts/record-demo.mjs`. Keep the GIF in `docs/`, not `static/`, so the service worker does not precache it.
+
+### README scope
+
+The README is for two audiences only: players (the user guide) and readers who want the specification (tech stack, game rules, architecture, design decisions). Keep maintainer detail out of it and here instead: deployment steps, tooling, demo and icon generation, conventions. When behavior changes, update the user guide and the game-rules table together. The game-rules table must match the constants in `src/lib/engine` (board size, speed profiles, points).
+
 ## Architecture
 
 The most important rule in this repo: **the game engine is pure TypeScript and knows nothing about Svelte, the DOM, time, or the browser.**
@@ -239,13 +254,15 @@ The site is a static export served from a **project path** (`/svelte-snake/`), s
 - If a service worker or web manifest is added, its scope, `start_url` and asset paths must respect the base path. Verify with `pnpm build && pnpm preview` using the same `BASE_PATH` as production.
 - **Workflow actions** (current as of Nov 2026; verify before changing): `actions/checkout@v7`, `pnpm/setup@v3`, `actions/upload-pages-artifact@v5` and `actions/deploy-pages@v5`. `pnpm/setup` is pnpm's successor to `pnpm/action-setup` for pnpm 11 and newer (this project pins pnpm 12): it installs the pinned pnpm, installs Node from `.nvmrc`, and runs `pnpm install` itself, with `require-lockfile: true` making that a frozen install. If the project ever drops to pnpm 10 or older, switch back to `pnpm/action-setup` plus `actions/setup-node`.
 - Pin GitHub Actions to major versions (or SHAs) and keep workflow permissions minimal. Dependabot (`.github/dependabot.yml`) keeps npm packages and actions up to date, so expect its pull requests to bump these majors.
-- The workflows have not been run yet: the first push to GitHub is their first real execution. Read the first run's logs, and fix problems at the action level (versions, inputs) before suspecting the app.
+- **Where it lives:** the repository is https://github.com/YonathanKevin20/svelte-snake and the site is https://yonathankevin20.github.io/svelte-snake/ . The README's CI badge and "Play it live" link use these. If the repository is renamed or moved, update the README links; the workflows take the base path from the repository name on their own.
+- **Licenses:** the code is MIT (`LICENSE`, holder named there). `static/third-party-licenses.txt` holds the SIL OFL text for the pixel font and the MIT notices for Svelte and SvelteKit; it is served with the site and linked from the settings dialog, because those licenses require their text to travel with the software. When a new font, image or runtime library ships in the build, add its notice to that file, and add a test if it should be reachable from the UI.
+- The workflows were written without being run locally, and verified against action documentation, not against GitHub. If a run fails, read its logs first and fix problems at the action level (versions, inputs) before suspecting the app.
 
 ## Roadmap
 
 Work in this order. Ship each stage as a working, deployed version.
 
-**Current status:** it is an installable, offline-capable PWA with an automated WCAG 2.2 AA audit. The engine (with tests), the fixed-timestep loop, keyboard and touch controls (swipe and on-screen keypad), a settings panel (speed, wrap and sound), pause, auto-pause on hidden tab, `localStorage` high score, the LCD theme, CI and the Pages deploy workflow are in place. Sound effects with a mute toggle are in. Remaining for the MVP: confirm the first deploy and add a screenshot or GIF to the README. Known limitation: in landscape on a phone the layout scrolls vertically, because the phone frame is sized for portrait.
+**Current status:** it is an installable, offline-capable PWA with an automated WCAG 2.2 AA audit. The engine (with tests), the fixed-timestep loop, keyboard and touch controls (swipe and on-screen keypad), a settings panel (speed, wrap and sound), pause, auto-pause on hidden tab, `localStorage` high score, the LCD theme, CI and the Pages deploy workflow are in place. Sound effects with a mute toggle are in. The first deploy is done and the README has a demo GIF and a user-guide-plus-specifications structure. Known limitation: in landscape on a phone the layout scrolls vertically, because the phone frame is sized for portrait.
 
 1. **MVP:** core loop, score, game over, restart, pause, keyboard controls, `localStorage` high score, retro LCD theme, engine tests, CI, GitHub Pages deploy.
 2. **Polish:** ~~swipe and keypad controls~~ (done), ~~speed and wrap-mode settings~~ (done), ~~sound with mute~~ (done), ~~offline-capable PWA~~ (done), ~~accessibility pass~~ (done, see the Accessibility section for its limits).

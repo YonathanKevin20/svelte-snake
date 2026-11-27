@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { asset } from '$app/paths';
 	import { SPEEDS } from '../engine';
 	import type { Settings } from '../settings/settings';
 
@@ -94,6 +95,13 @@
 			</label>
 			<p class="help">Press M at any time to mute or unmute.</p>
 		</fieldset>
+
+		<p class="help credits">
+			Pixel font: Press Start 2P, under the SIL Open Font License.
+			<a href={asset('third-party-licenses.txt')} target="_blank" rel="noopener"
+				>Licenses<span class="sr-only"> (opens in a new tab)</span></a
+			>
+		</p>
 
 		<form method="dialog">
 			<button type="submit" class="close">Close</button>
@@ -198,6 +206,10 @@
 		margin: 0;
 		font-size: 0.6rem;
 		line-height: 1.8;
+	}
+
+	.credits a {
+		color: inherit;
 	}
 
 	.pending {

@@ -22,6 +22,21 @@ test('opens from the Menu key and from Escape', async ({ page }) => {
 	await expect(dialog(page)).toBeHidden();
 });
 
+test('links to the third-party licenses, which are served with the site', async ({ page }) => {
+	await openMenu(page);
+	const link = dialog(page).getByRole('link', { name: /Licenses/ });
+	await expect(link).toBeVisible();
+	await expect(link).toHaveAttribute('target', '_blank');
+
+	const href = (await link.getAttribute('href')) as string;
+	const response = await page.request.get(new URL(href, page.url()).toString());
+	expect(response.ok()).toBe(true);
+	const text = await response.text();
+	expect(text).toContain('SIL OPEN FONT LICENSE');
+	expect(text).toContain('Press Start 2P');
+	expect(text).toContain('Permission is hereby granted'); // the MIT notices
+});
+
 test('saves speed and wrap settings across reloads', async ({ page }) => {
 	await openMenu(page);
 	await expect(dialog(page).getByRole('radio', { name: 'Normal' })).toBeChecked();
